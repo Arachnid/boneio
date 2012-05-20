@@ -8,27 +8,26 @@
 #
 # This example is in the public domain
  
-# Import PyBBIO library:
-from bbio import *
+# Import boneio library:
+from boneio import *
 
 # Analog input pin - A0 is pin 39 on header P9 
 ain = A0
 
-# Create a setup function:
-def setup():
-  # Nothing to do here
-  pass
+def main():
+  init()
+  try:
+    while True:
+      adc_value = analogRead(ain)
+      # ADC reference voltage is 1.8v, and it is a 
+      # 12-bit ADC, so to get volts per step:
+      volts_per_step = 1.8 / 2.0**12
+      # Multiply ADC value by volts/step to get voltage:
+      voltage = adc_value * volts_per_step
+      print "%fv" % voltage
+      delay(500)
+  finally:
+    cleanup()
 
-# Create a main function:
-def loop():
-  adc_value = analogRead(ain)
-  # ADC reference voltage is 1.8v, and it is a 
-  # 12-bit ADC, so to get volts per step:
-  volts_per_step = 1.8 / 2.0**12
-  # Multiply ADC value by volts/step to get voltage:
-  voltage = adc_value * volts_per_step
-  print "%fv" % voltage
-  delay(500)
-
-# Start the loop:
-run(setup, loop)
+if __name__ == '__main__':
+  main()

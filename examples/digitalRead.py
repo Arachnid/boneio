@@ -3,22 +3,25 @@
 #
 # This example is in the public domain
 
-# Import PyBBIO library:
-from bbio import *
+# Import boneio library:
+from boneio import *
 
-# Create a setup function:
-def setup():
+def main():
+  init()
+
   # Set the GPIO pins:
   pinMode(USR3, OUTPUT)
   pinMode(GPIO1_6, INPUT)
 
-# Create a main function:
-def loop():
-  state = digitalRead(GPIO1_6)
-  digitalWrite(USR3, state)
-  # It's good to put a bit of a delay in if possible
-  # to keep the processor happy:
-  delay(100)
-
-# Start the loop:
-run(setup, loop)
+  try:
+    while True:
+      state = digitalRead(GPIO1_6)
+      digitalWrite(USR3, state)
+      # It's good to put a bit of a delay in if possible
+      # to keep the processor happy:
+      delay(100)
+  finally:
+    cleanup()
+    
+if __name__ == '__main__':
+  main()

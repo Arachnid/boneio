@@ -5,11 +5,12 @@
 #
 # This example is in the public domain
 
-# Import PyBBIO library:
-from bbio import *
+# Import boneio library:
+from boneio import *
 
-# Create a setup function:
-def setup():
+def main():
+  init()
+
   print "\n GPIO pins:" 
   for i in GPIO.keys(): 
     print "   %s" % i
@@ -17,11 +18,7 @@ def setup():
   for i in ADC.keys():
     print "   %s" % i
 
-# Create a main function:
-def loop():
-  # No need to keep running
-  stop()
+  cleanup()
 
-# Start the loop:
-run(setup, loop)
-
+if __name__ == '__main__':
+  main()

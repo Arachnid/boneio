@@ -21,22 +21,29 @@
  This example is in the public domain.
 """
 
-from bbio import *
+from boneio import *
 
 LED = USR3        # On-board LED
 KNOCK_SENSOR = A0 # AIN0 - pin 39 on header P9
 THRESHOLD = 245   # analogRead() value > THRESHOLD indicates knock
 
 
-def setup():
+def main():
+  init()
+
   pinMode(LED, OUTPUT)  
   print "PyBBIO Knock Sensor"
 
-def loop():
-  value = analogRead(KNOCK_SENSOR)
-  #print value
-  if (value > THRESHOLD):
-    toggle(LED)
-    print "knock!"
-  delay(100)
-run(setup, loop)
+  try:
+    while True:
+      value = analogRead(KNOCK_SENSOR)
+      #print value
+      if (value > THRESHOLD):
+        toggle(LED)
+        print "knock!"
+      delay(100)
+  finally:
+    cleanup()
+
+if __name__ == '__main__':
+  main()

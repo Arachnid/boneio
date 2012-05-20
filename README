@@ -1,12 +1,16 @@
 ************************************************************************
-PyBBIO - v0.3.1
+boneio - v0.3.1
 Created: 12/2011
-Author: Alexander Hiam - ahiam@marlboro.edu - www.alexanderhiam.com
-Website: https://github.com/alexanderhiam/PyBBIO
+Authors: Alexander Hiam - ahiam@marlboro.edu - www.alexanderhiam.com
+         Nicholas Johnson - arachnid@notdot.net - www.notdot.net
+Website: https://github.com/arachnid/boneio
 
 A Python library for hardware IO support on the TI Beaglebone.
 
-Copyright 2012 Alexander Hiam 
+This is a fork of PyBBIO (https://github.com/alexanderhiam/PyBBIO), modified
+to act as a standard Python library instead of an arduino-like environment.
+
+Copyright 2012 Alexander Hiam, Nicholas Johnson
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -39,63 +43,12 @@ directory can be imported using standard Python syntax after bbio is
 imported. This is demonstrated in tests/library_test.py using the example
 library at libraries/example.py.
 
-Instructions here:
-  https://github.com/alexanderhiam/PyBBIO/wiki
-
-Full API documentation here:
-  http://www.alexanderhiam.com/code/pybbio/
-
 The python-mmap module is required and was not installed on my BeagleBone,
 despite it usually being part of the standard Python modules. 
 It can easily be installed by running at the BeagleBone shell:
   # opkg update; opkg install python-mmap
 
-Installing PyBBIO:
- -With GIT:
-   Requirements: 
-    -BeagleBone connected to the internet.
-    -BeagleBone shell access, either through serial port or ssh.   
-   1. On BeagleBone, cd to the location you want to download PyBBIO in, e.g.:
-        # cd ~
-   2. Clone the git repository:
-        # git clone git://github.com/alexanderhiam/PyBBIO.git
-   3. Run installer:
-        # cd PyBBIO/
-        # sh install.sh -i
-   4. Test PyBBIO:
-        # cd examples/
-        # python blink.py
-      If all is well you should see two of the LEDs next to the Ethernet jack
-      blinking back and forth. Press CTRL-C to stop.
-
- -Without GIT:
-   Requirements: 
-    -BeagleBone shell access, either through serial port or ssh.   
-   1. Download PyBBBIO from:
-        https://github.com/alexanderhiam/PyBBIO/downloads
-   2. Unpack PyBBIO directory and cp onto BeagleBone. The simplest way
-      to do this is just to remove the microSD card from the board (not while
-      it's on!), pop it in a card reader and mount it on your computer. It
-      should mount as two seperate filesystems; open the one called 
-      Angstrom-Cloud9- and copy PyBBIO/ to home/root/. Then unmount the card
-      and place it back in the BeagleBone.
-   Complete steps 3 and 4 above.
-
-Uninstalling PyBBIO:
-  1. On BeagleBone, cd into PyBBIO folder, e.g.:
-       # cd ~/PyBBIO
-  2. Run installer with uninstall flag:
-       # sh install.sh -u
-  PyBBIO configuration directory and Python module will be removed,
-  3. PyBBIO folder can then be deleted, e.g.:
-       # cd ..
-       # rm -rf PyBBIO
-  
-Note:
- If you've installed PyBBIO with 'git clone' and then update it with 
- 'git pull', you'll have to run 'sh install -i' again for the changes to
- take effect. 
-
+Python setuptools support is a work in progress.
 
 Hardware access is acheived using a memory map of the special file /dev/mem, 
 which is a map of the entire physical memory of the AM3358 ARM processor. 

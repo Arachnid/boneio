@@ -5,12 +5,6 @@
 # to you Beaglebone, edit with care.                #
 #---------------------------------------------------#
 
-
-LIBRARIES_PATH = "<<< Do not edit >>>"
-# This will be replaced in installed config file with
-# the correct path to the libraries folder. Do not edit
-# this line.
-
 MMAP_OFFSET = 0x44c00000 
 MMAP_SIZE   = 0x48ffffff-MMAP_OFFSET
 

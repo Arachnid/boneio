@@ -27,61 +27,24 @@
 """
 
 import struct, os, sys, time
-try:
-  from mmap import mmap
-except:
-  print "\n mmap module not found; to install:\n\
-   # opkg update && opkg install python-mmap\n"
-  sys.exit(0)
-try:
-  import serial
-except:
-  print "\n pyserial module not found; to install:\n\
-   # opkg update && opkg install python-pyserial\n"
-  sys.exit(0)
+from mmap import mmap
 
 
-# Load global configuration:
-CONFIG_FILE="%s/.pybbio/beaglebone.cfg" % os.environ['HOME']
-config = open(CONFIG_FILE, 'r').read()
-assert ('MMAP_OFFSET' in config) and ('MMAP_SIZE' in config),\
-      "*Config file '%s' must contain values MMAP_OFFSET and MMAP_SIZE" %\
-                                                                CONFIG_FILE
-exec(config)
-
-sys.path.append(LIBRARIES_PATH)
+# Load platform configuration
+# TODO(arachnid): Support multiple platforms
+# TODO(arachnid): Move stuff out of global namespace
 
 # Create global mmap:
 with open("/dev/mem", "r+b") as f:
   __mmap = mmap(f.fileno(), MMAP_SIZE, offset=MMAP_OFFSET)
 
 
-def run(setup, main):
-  """ The main loop; must be passed a setup and a main function.
-      First the setup function will be called once, then the main
-      function wil be continuously until a stop signal is raised, 
-      e.g. CTRL-C or a call to the stop() function from within the
-      main function. """
-  try:
-    bbio_init()
-    setup()
-    while (True):
-      main()
-  except KeyboardInterrupt:
-    # Manual exit signal, clean up and exit happy
-    bbio_cleanup()
-  except Exception, e:
-    # Something may have gone wrong, clean up and print exception
-    bbio_cleanup()
-    print e
-      
-def stop():
-  """ Preffered way for a program to stop itself. """
-  raise KeyboardInterrupt # Expected happy stop condition in run()
-
-def bbio_init():
+# TODO(arachnid): Refactor all this into a class so setup and cleanup are
+#     handled neatly.
+def init():
   """ Pre-run initialization, i.e. starting module clocks, etc. """
   _analog_init()
+
 
 def _analog_init():
   """ Initializes the on-board 8ch 12bit ADC. """
@@ -101,7 +64,7 @@ def _analog_init():
   # Now we can enable ADC subsystem, re-enabling write protect:
   _setReg(ADC_CTRL, TSC_ADC_SS_ENABLE)
 
-def bbio_cleanup():
+def cleanup():
   """ Post-run cleanup, i.e. stopping module clocks, etc. """
   _analog_cleanup()
   _serial_cleanup()
@@ -238,6 +201,8 @@ def _setReg(address, new_value, length=32):
 
 
 
+# TODO(arachnid): Slim this down into a basic wrapper that handles pinmux
+  
 # _UART_PORT is a wrapper class for pySerial to enable Arduino-like access
 # to the UART1, UART2, UART4, and UART5 serial ports on the expansion headers:
 class _UART_PORT(object):
@@ -250,6 +215,8 @@ class _UART_PORT(object):
     self.peek_char = ''
 
   def begin(self, baud, timeout=1):
+    import serial
+
     """ Starts the serial port at the given baud rate. """
     # Set proper pinmux to match expansion headers:
     tx_pinmux_filename = UART[self.config][1]
