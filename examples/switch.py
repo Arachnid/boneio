@@ -33,8 +33,8 @@ def main():
 
   try:
     while True:
-      if (digitalRead(SWITCH) == HIGH):
-        if (SW_STATE == 0):
+      if digitalRead(SWITCH):
+        if SW_STATE == 0:
           # Just pressed, not held down.
           # Set SW_STATE and toggle LED_STATE
           SW_STATE = 1 
@@ -44,12 +44,12 @@ def main():
         # Switch not pressed, reset SW_STATE:
         SW_STATE = 0
 
-      if (LED_STATE == 0):
-        digitalWrite(LED_GRN, HIGH)
-        digitalWrite(LED_RED, LOW)
+      if LED_STATE == 0:
+        digitalWrite(LED_GRN, True)
+        digitalWrite(LED_RED, False)
       else:
-        digitalWrite(LED_GRN, LOW)
-        digitalWrite(LED_RED, HIGH)
+        digitalWrite(LED_GRN, False)
+        digitalWrite(LED_RED, True)
       # It's good to put a bit of a delay in if possible
       # to keep the processor happy:
       delay(50)

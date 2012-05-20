@@ -9,6 +9,8 @@
  peripheral support is on the way, so keep checking the Github page
  for updates.
 
+
+
  16-bit register support mod from sbma44 - https://github.com/sbma44
 
  Copyright 2012 Alexander Hiam
@@ -138,8 +140,8 @@ def pinState(gpio_pin):
   if (_getReg(GPIO[gpio_pin][0]+GPIO_OE) & GPIO[gpio_pin][1]):
     return None
   if (_getReg(GPIO[gpio_pin][0]+GPIO_DATAOUT) & GPIO[gpio_pin][1]):
-    return HIGH
-  return LOW
+    return True
+  return False
 
 def analogRead(analog_pin):
   """ Returns analog value read on given analog input pin. """

@@ -65,8 +65,6 @@ GPIO_SETDATAOUT   = 0x194
 
 INPUT  = 1
 OUTPUT = 0
-HIGH   = 1
-LOW    = 0
 
 ## GPIO pins:
 

@@ -14,8 +14,8 @@ def main():
   pinMode(USR3, OUTPUT)
 
   # Start one high and one low:
-  digitalWrite(USR2, HIGH)
-  digitalWrite(USR3, LOW)
+  digitalWrite(USR2, True)
+  digitalWrite(USR3, False)
 
   try:
     while True:
