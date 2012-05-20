@@ -33,6 +33,7 @@ from mmap import mmap
 # Load platform configuration
 # TODO(arachnid): Support multiple platforms
 # TODO(arachnid): Move stuff out of global namespace
+from platforms.beaglebone import *
 
 # Create global mmap:
 with open("/dev/mem", "r+b") as f:
