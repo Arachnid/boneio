@@ -18,7 +18,7 @@ def main():
   init()
   try:
     while True:
-      adc_value = analogRead(ain)
+      adc_value = ain.read()
       # ADC reference voltage is 1.8v, and it is a 
       # 12-bit ADC, so to get volts per step:
       volts_per_step = 1.8 / 2.0**12

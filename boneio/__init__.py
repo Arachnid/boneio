@@ -41,38 +41,12 @@ __mmap = registers.mem
 #     handled neatly.
 def init():
   """ Pre-run initialization, i.e. starting module clocks, etc. """
-  _analog_init()
+  pass
 
-
-def _analog_init():
-  """ Initializes the on-board 8ch 12bit ADC. """
-  step_config = 'ADCSTEPCONFIG%i'
-  #step_delay = 'ADCSTEPDELAY%i'
-  ain = 'AIN%i'   
-  # Enable ADC module clock:
-  _setReg(CM_WKUP_ADC_TSC_CLKCTRL, MODULEMODE_ENABLE)
-  # Wait for enable complete:
-  while (_getReg(CM_WKUP_ADC_TSC_CLKCTRL) & IDLEST_MASK): time.sleep(0.1)
-  # Must turn off STEPCONFIG write protect:
-  _andReg(ADC_CTRL, ADC_STEPCONFIG_WRITE_PROTECT(0))
-  # Set STEPCONFIG1-STEPCONFIG8 to correspond to ADC inputs 0-7:
-  for i in xrange(8):
-    config = SEL_INP(ain % i) | ADC_AVG4 # Average 4 readings
-    _andReg(eval(step_config % (i+1)), config)
-  # Now we can enable ADC subsystem, re-enabling write protect:
-  _setReg(ADC_CTRL, TSC_ADC_SS_ENABLE)
 
 def cleanup():
   """ Post-run cleanup, i.e. stopping module clocks, etc. """
-  _analog_cleanup()
   _serial_cleanup()
-  __mmap.close()
-
-def _analog_cleanup():
-  # Disable ADC subsystem:
-  _clearReg(ADC_CTRL, TSC_ADC_SS_ENABLE)
-  # Disable ADC module clock:
-  _clearReg(CM_WKUP_ADC_TSC_CLKCTRL, MODULEMODE_ENABLE)
 
 def _serial_cleanup():
   """ Ensures that all serial ports opened by current process are closed. """
@@ -88,19 +62,6 @@ def delayMicroseconds(us):
       on a more accurate method. """
   t = time.time()
   while (((time.time()-t)*1000000) < us): pass
-
-def analogRead(analog_pin):
-  """ Returns analog value read on given analog input pin. """
-  assert (analog_pin in ADC), "*Invalid analog pin: '%s'" % analog_pin
-
-  if (_getReg(CM_WKUP_ADC_TSC_CLKCTRL) & IDLEST_MASK):
-    # The ADC module clock has been shut off, e.g. by a different 
-    # PyBBIO script stopping while this one was running, turn back on:
-    _analog_init() 
-
-  _orReg(ADC_STEPENABLE, ADC_ENABLE(analog_pin))
-  while(_getReg(ADC_STEPENABLE) & ADC_ENABLE(analog_pin)): pass
-  return _getReg(ADC_FIFO0DATA)&ADC_FIFO_MASK
 
 
 # TODO(arachnid): Slim this down into a basic wrapper that handles pinmux

@@ -119,3 +119,26 @@ class GPIO(object):
             self.clear()
         else:
             self.set()
+
+
+class AnalogInput(object):
+    def _ADCInit(self):
+        raise NotImplemented()
+    
+    def _ADCEnabled(self):
+        raise NotImplemented()
+
+    def __init__(self, registers, en_reg, read_reg, read_mask, bit_num):
+        self.registers = registers
+        self.en_reg = en_reg
+        self.read_reg = read_reg
+        self.read_mask = read_mask
+        self.bit_num = bit_num
+
+    def read(self):
+        if not self._ADCEnabled():
+            self._ADCInit()
+
+        self.registers[self.en_reg] |= 1 << self.bit_num
+        while not self.registers[self.en_reg] & (1 << self.bit_num): pass
+        return self.registers[self.read_reg] & self.read_mask
