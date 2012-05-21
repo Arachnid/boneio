@@ -9,19 +9,19 @@ from boneio import *
 def main():
   init()
 
-  # Set the two LEDs as outputs: 
-  pinMode(USR2, OUTPUT)
-  pinMode(USR3, OUTPUT)
+  # Set the two LEDs as outputs:
+  USR2.output()
+  USR3.output()
 
   # Start one high and one low:
-  digitalWrite(USR2, HIGH)
-  digitalWrite(USR3, LOW)
+  USR2.set()
+  USR3.clear()
 
   try:
     while True:
       # Toggle the two LEDs and sleep a few seconds:
-      toggle(USR2)
-      toggle(USR3)
+      USR2.toggle()
+      USR3.toggle()
       delay(500)
   finally:
     cleanup()

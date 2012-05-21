@@ -27,17 +27,14 @@
 """
 
 import struct, os, sys, time
-from mmap import mmap
 
 
 # Load platform configuration
 # TODO(arachnid): Support multiple platforms
-# TODO(arachnid): Move stuff out of global namespace
 from platforms.beaglebone import *
 
-# Create global mmap:
-with open("/dev/mem", "r+b") as f:
-  __mmap = mmap(f.fileno(), MMAP_SIZE, offset=MMAP_OFFSET)
+# Temporary: Expose mmap for legacy functions
+__mmap = registers.mem
 
 
 # TODO(arachnid): Refactor all this into a class so setup and cleanup are
@@ -92,55 +89,6 @@ def delayMicroseconds(us):
   t = time.time()
   while (((time.time()-t)*1000000) < us): pass
 
-def pinMode(gpio_pin, direction, pull=-1):
-  """ Sets given digital pin to input if direction=1, output otherwise.
-      'pull' will set the pull up/down resitsor if setting as an input:
-      pull=-1 for pull-down, pull=1 for pull up, pull=0 for none. """
-  assert (gpio_pin in GPIO), "*Invalid GPIO pin: '%s'" % gpio_pin
-  if (direction == INPUT):
-    # Pinmux:
-    if (pull > 0): pull = CONF_PULLUP
-    elif (pull == 0): pull = CONF_PULL_DISABLE
-    else: pull = 0
-    _pinMux(GPIO[gpio_pin][2], CONF_GPIO_INPUT|pull)
-    # Set input:
-    _orReg(GPIO[gpio_pin][0]+GPIO_OE, GPIO[gpio_pin][1])
-    return
-  # Pinmux:
-  _pinMux(GPIO[gpio_pin][2], CONF_GPIO_OUTPUT)
-  # Set output:
-  _clearReg(GPIO[gpio_pin][0]+GPIO_OE, GPIO[gpio_pin][1])
-
-def digitalWrite(gpio_pin, state):
-  """ Writes given digital pin low if state=0, high otherwise. """
-  assert (gpio_pin in GPIO), "*Invalid GPIO pin: '%s'" % gpio_pin
-  if (state):
-    _orReg(GPIO[gpio_pin][0]+GPIO_DATAOUT, GPIO[gpio_pin][1])
-    return
-  _clearReg(GPIO[gpio_pin][0]+GPIO_DATAOUT, GPIO[gpio_pin][1])
-
-def toggle(gpio_pin):
-  """ Toggles the state of the given digital pin. """
-  assert (gpio_pin in GPIO), "*Invalid GPIO pin: '%s'" % gpio_pin
-  _xorReg(GPIO[gpio_pin][0]+GPIO_DATAOUT, GPIO[gpio_pin][1])
-
-def digitalRead(gpio_pin):
-  """ Returns pin state as 1 or 0. """
-  assert (gpio_pin in GPIO), "*Invalid GPIO pin: '%s'" % gpio_pin
-  if (_getReg(GPIO[gpio_pin][0]+GPIO_DATAIN) & GPIO[gpio_pin][1]):
-    return 1
-  return 0
-
-def pinState(gpio_pin):
-  """ Returns the state of a digital pin if it is configured as
-      an output. Returns None if it is configuredas an input. """
-  assert (gpio_pin in GPIO), "*Invalid GPIO pin: '%s'" % gpio_pin
-  if (_getReg(GPIO[gpio_pin][0]+GPIO_OE) & GPIO[gpio_pin][1]):
-    return None
-  if (_getReg(GPIO[gpio_pin][0]+GPIO_DATAOUT) & GPIO[gpio_pin][1]):
-    return HIGH
-  return LOW
-
 def analogRead(analog_pin):
   """ Returns analog value read on given analog input pin. """
   assert (analog_pin in ADC), "*Invalid analog pin: '%s'" % analog_pin
@@ -153,53 +101,6 @@ def analogRead(analog_pin):
   _orReg(ADC_STEPENABLE, ADC_ENABLE(analog_pin))
   while(_getReg(ADC_STEPENABLE) & ADC_ENABLE(analog_pin)): pass
   return _getReg(ADC_FIFO0DATA)&ADC_FIFO_MASK
-
-def _pinMux(fn, mode):
-  """ Uses kernel omap_mux files to set pin modes. """
-  # There's no simple way to write the control module registers from a 
-  # user-level process because it lacks the proper privileges, but it's 
-  # easy enough to just use the built-in file-based system and let the 
-  # kernel do the work. 
-  try:
-    with open(PINMUX_PATH+fn, 'wb') as f:
-      f.write(hex(mode)[2:]) # Write hex string (stripping off '0x')
-  except IOError:
-    print "*omap_mux file not found: '%s'" % (PINMUX_PATH+fn)
-
-def _andReg(address, mask, length=32):
-  """ Sets 16 or 32 bit Register at address to its current value AND mask. """
-  _setReg(address, _getReg(address, length)&mask, length)
-
-def _orReg(address, mask, length=32):
-  """ Sets 16 or 32 bit Register at address to its current value OR mask. """
-  _setReg(address, _getReg(address, length)|mask, length)
-
-def _xorReg(address, mask, length=32):
-  """ Sets 16 or 32 bit Register at address to its current value XOR mask. """
-  _setReg(address, _getReg(address, length)^mask, length)
-
-def _clearReg(address, mask, length=32):
-  """ Clears mask bits in 16 or 32 bit register at given address. """
-  _andReg(address, ~mask, length)
-
-def _getReg(address, length=32):
-  """ Returns unpacked 16 or 32 bit register value starting from address. """
-  if (length == 32):
-    return struct.unpack("<L", __mmap[address:address+4])[0]
-  elif (length == 16):
-    return struct.unpack("<H", __mmap[address:address+2])[0]
-  else:
-    raise ValueError("Invalid register length: %i - must be 16 or 32" % length)
-
-def _setReg(address, new_value, length=32):
-  """ Sets 16 or 32 bits at given address to given value. """
-  if (length == 32):
-    __mmap[address:address+4] = struct.pack("<L", new_value)
-  elif (length == 16):
-    __mmap[address:address+2] = struct.pack("<H", new_value)
-  else:
-    raise ValueError("Invalid register length: %i - must be 16 or 32" % length)
-
 
 
 # TODO(arachnid): Slim this down into a basic wrapper that handles pinmux
