@@ -1,4 +1,5 @@
 import mmap
+import struct
 
 class RegisterMap(object):
     def __init__(self, start_address, end_address=None, length=None, register_size=32):
