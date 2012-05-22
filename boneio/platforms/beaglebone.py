@@ -8,14 +8,15 @@
 from boneio import boneio
 
 
-registers = boneio.RegisterMap(0x44c00000, end_address=0x48ffffff)
+_MMAP_OFFSET = 0x44c00000
+registers = boneio.RegisterMap(_MMAP_OFFSET, end_address=0x48ffffff)
 
 ##############################
 ##--- Start PRCM config: ---##
 ## Power Management and Clock Module
 
 #--- Module clock control: ---
-_CM_WKUP = 0x200400
+_CM_WKUP = 0x44e00400-_MMAP_OFFSET
 
 _CM_WKUP_ADC_TSC_CLKCTRL = 0xbc+_CM_WKUP
 
@@ -55,10 +56,10 @@ muxer = BeagleboneMuxer('/sys/kernel/debug/omap_mux/')
 
 ##############################
 ##--- Start GPIO config: ---##
-_GPIO0 = 0x44e07000-MMAP_OFFSET
-_GPIO1 = 0x4804c000-MMAP_OFFSET
-_GPIO2 = 0x481ac000-MMAP_OFFSET
-_GPIO3 = 0x481ae000-MMAP_OFFSET
+_GPIO0 = 0x44e07000 - _MMAP_OFFSET
+_GPIO1 = 0x4804c000 - _MMAP_OFFSET
+_GPIO2 = 0x481ac000 - _MMAP_OFFSET
+_GPIO3 = 0x481ae000 - _MMAP_OFFSET
 
 _GPIO_OE           = 0x134
 _GPIO_DATAIN       = 0x138
@@ -130,14 +131,14 @@ for name, (reg, bit_num, mux_name) in _gpio.items():
 ##############################
 ##--- Start ADC config: ----##
 
-_ADC_TSC = 0x20d000
+_ADC_TSC = 0x44e0d000 - _MMAP_OFFSET
 
 
 ## Registers:
 
 #--- ADC_CTRL ---
 
-_ADC_CTRL = _ADC_TSC+0x40
+_ADC_CTRL = _ADC_TSC + 0x40
 
 _TSC_ADC_SS_ENABLE = 0x01 
 # To enable:
@@ -147,26 +148,26 @@ _TSC_ADC_SS_ENABLE = 0x01
 # _orReg(ADC_CTRL, TSC_ADC_SS_ENABLE)
 #----------------
 
-_ADC_CLKDIV = _ADC_TSC+0x4c  # Write desired value-1
+_ADC_CLKDIV = _ADC_TSC + 0x4c  # Write desired value-1
 
 #--- ADC_STEPENABLE ---
-_ADC_STEPENABLE = _ADC_TSC+0x54
+_ADC_STEPENABLE = _ADC_TSC + 0x54
 
 #----------------------
 
-_ADC_IDLECONFIG = ADC_TSC+0x58
+_ADC_IDLECONFIG = ADC_TSC + 0x58
 
 #--- ADC STEPCONFIG ---
-_ADCSTEPCONFIG = _ADC_TSC+0x64
-_ADCSTEPDELAY  = _ADC_TSC+0x68
+_ADCSTEPCONFIG = _ADC_TSC + 0x64
+_ADCSTEPDELAY  = _ADC_TSC + 0x68
 
 
 _ADC_RESET = 0x00 # Default value of STEPCONFIG
 
-_ADC_AVG2  = 0x01<<2
-_ADC_AVG4  = 0x02<<2
-_ADC_AVG8  = 0x03<<2
-_ADC_AVG16 = 0x04<<2
+_ADC_AVG2  = 0x01 << 2
+_ADC_AVG4  = 0x02 << 2
+_ADC_AVG8  = 0x03 << 2
+_ADC_AVG16 = 0x04 << 2
 
 _SAMPLE_DELAY = lambda cycles: (cycles&0xff)<<24
 # SAMPLE_DELAY is the number of cycles to sample for
@@ -175,7 +176,7 @@ _SAMPLE_DELAY = lambda cycles: (cycles&0xff)<<24
 #----------------------
 
 #--- ADC FIFO ---
-_ADC_FIFO0DATA = _ADC_TSC+0x100
+_ADC_FIFO0DATA = _ADC_TSC + 0x100
 
 _ADC_FIFO_MASK = 0xfff
 # ADC result = _getReg(ADC_FIFO0DATA)&ADC_FIFO_MASK
