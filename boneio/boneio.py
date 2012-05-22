@@ -4,7 +4,7 @@ import struct
 class RegisterMap(object):
     def __init__(self, start_address, end_address=None, length=None, register_size=32):
         if register_size not in (16, 32):
-            raise ValueError("Invalid register length: %i - must be 16 or 32" % self.map.register_size)
+            raise ValueError("Invalid register length: %i - must be 16 or 32" % self.register_size)
         self.register_size = register_size
 
         self.start_address = start_address
@@ -18,9 +18,9 @@ class RegisterMap(object):
     def __getitem__(self, address):
         """ Returns unpacked 16 or 32 bit register value starting from address. """
         if (self.register_size == 32):
-          return struct.unpack("<L", self.map.mem[address:address+4])[0]
+          return struct.unpack("<L", self.mem[address:address+4])[0]
         elif (self.register_size == 16):
-          return struct.unpack("<H", self.map.mem[address:address+2])[0]
+          return struct.unpack("<H", self.mem[address:address+2])[0]
 
     def __setitem__(self, address, val):
         """ Sets 16 or 32 bits at given address to given value. """
