@@ -117,14 +117,14 @@ _gpio = {
 }
 
 for name, (reg, bit_num, mux_name) in _gpio.items():
-    setattr(globals(), name, boneio.GPIO(
+    globals()[name] = boneio.GPIO(
         registers,
         reg + _GPIO_DATAIN,
         reg + _GPIO_DATAOUT,
         reg + _GPIO_OE,
         bit_num,
         muxer,
-        mux_name))
+        mux_name)
 
 ##--- End GPIO config ------##
 ##############################
