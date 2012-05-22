@@ -116,7 +116,7 @@ class GPIO(object):
 
     def toggle(self):
         """Toggles the value of the output pin."""
-        if self.value:
+        if self.state:
             self.clear()
         else:
             self.set()

@@ -18,8 +18,6 @@ registers = boneio.RegisterMap(_MMAP_OFFSET, end_address=0x48ffffff)
 #--- Module clock control: ---
 _CM_WKUP = 0x44e00400-_MMAP_OFFSET
 
-_CM_WKUP_ADC_TSC_CLKCTRL = 0xbc + _CM_WKUP
-
 _MODULEMODE_ENABLE = 0x02
 _IDLEST_MASK = 0x03<<16
 # To enable module clock:
@@ -134,6 +132,8 @@ for name, (reg, bit_num, mux_name) in _gpio.items():
 
 class BeagleboneAnalogInput(boneio.AnalogInput):
     ADC_TSC = 0x44e0d000 - _MMAP_OFFSET
+
+    CM_WKUP_ADC_TSC_CLKCTRL = 0xbc + _CM_WKUP
 
     ## Registers:
 
