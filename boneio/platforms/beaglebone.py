@@ -15,7 +15,7 @@ registers = boneio.RegisterMap(0x44c00000, end_address=0x48ffffff)
 ## Power Management and Clock Module
 
 #--- Module clock control: ---
-_CM_WKUP = 0x44e00400-MMAP_OFFSET
+_CM_WKUP = 0x200400
 
 _CM_WKUP_ADC_TSC_CLKCTRL = 0xbc+CM_WKUP
 
@@ -130,7 +130,7 @@ for name, (reg, bit_num, mux_name) in _gpio.items():
 ##############################
 ##--- Start ADC config: ----##
 
-_ADC_TSC = 0x44e0d000-MMAP_OFFSET
+_ADC_TSC = 0x20d000
 
 
 ## Registers:
@@ -175,7 +175,7 @@ _SAMPLE_DELAY = lambda cycles: (cycles&0xff)<<24
 #----------------------
 
 #--- ADC FIFO ---
-_ADC_FIFO0DATA = ADC_TSC+0x100
+_ADC_FIFO0DATA = _ADC_TSC+0x100
 
 _ADC_FIFO_MASK = 0xfff
 # ADC result = _getReg(ADC_FIFO0DATA)&ADC_FIFO_MASK
