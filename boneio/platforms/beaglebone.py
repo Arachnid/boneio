@@ -186,7 +186,8 @@ class BeagleboneAnalogInput(boneio.AnalogInput):
     def __init__(self, registers, bit_num):
         self._cleanup = True
         super(BeagleboneAnalogInput, self).__init__(
-            registers, self.ADC_STEPENABLE, self.ADC_FIFO0DATA, self.ADC_FIFO_MASK)
+            registers, self.ADC_STEPENABLE, self.ADC_FIFO0DATA,
+            self.ADC_FIFO_MASK, bit_num)
 
     def __del__(self):
         if self._cleanup:
