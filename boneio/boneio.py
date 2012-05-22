@@ -12,7 +12,7 @@ class RegisterMap(object):
         else:
             self.length = end_address - start_address
         self.fh = open("/dev/mem", "r+b")
-        self.mem = mmap.mmap(self.fh.fileno(), length, offset=start_address)
+        self.mem = mmap.mmap(self.fh.fileno(), self.length, offset=start_address)
 
     def __getitem__(self, address):
         """ Returns unpacked 16 or 32 bit register value starting from address. """
