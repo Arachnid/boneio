@@ -132,106 +132,98 @@ for name, (reg, bit_num, mux_name) in _gpio.items():
 ##############################
 ##--- Start ADC config: ----##
 
-_ADC_TSC = 0x44e0d000 - _MMAP_OFFSET
-
-
-## Registers:
-
-#--- ADC_CTRL ---
-
-_ADC_CTRL = _ADC_TSC + 0x40
-
-_TSC_ADC_SS_ENABLE = 0x01 
-# To enable:
-# _setReg(ADC_CTRL, TSC_ADC_SS_ENABLE)
-#  This will turn STEPCONFIG write protect back on 
-# To keep write protect off:
-# _orReg(ADC_CTRL, TSC_ADC_SS_ENABLE)
-#----------------
-
-_ADC_CLKDIV = _ADC_TSC + 0x4c  # Write desired value-1
-
-#--- ADC_STEPENABLE ---
-_ADC_STEPENABLE = _ADC_TSC + 0x54
-
-#----------------------
-
-_ADC_IDLECONFIG = _ADC_TSC + 0x58
-
-#--- ADC STEPCONFIG ---
-_ADCSTEPCONFIG = _ADC_TSC + 0x64
-_ADCSTEPDELAY  = _ADC_TSC + 0x68
-
-
-_ADC_RESET = 0x00 # Default value of STEPCONFIG
-
-_ADC_AVG2  = 0x01 << 2
-_ADC_AVG4  = 0x02 << 2
-_ADC_AVG8  = 0x03 << 2
-_ADC_AVG16 = 0x04 << 2
-
-_SAMPLE_DELAY = lambda cycles: (cycles&0xff)<<24
-# SAMPLE_DELAY is the number of cycles to sample for
-# Set delay with _orReg(ADCSTEPDELAYx, SAMPLE_DELAY(cycles))
-
-#----------------------
-
-#--- ADC FIFO ---
-_ADC_FIFO0DATA = _ADC_TSC + 0x100
-
-_ADC_FIFO_MASK = 0xfff
-# ADC result = _getReg(ADC_FIFO0DATA)&ADC_FIFO_MASK
-#----------------
-
 class BeagleboneAnalogInput(boneio.AnalogInput):
-    def __init__(self, *args, **kwargs):
+    ADC_TSC = 0x44e0d000 - _MMAP_OFFSET
+
+    ## Registers:
+
+    #--- ADC_CTRL ---
+    ADC_CTRL = ADC_TSC + 0x40
+
+    TSC_ADC_SS_ENABLE = 0x01 
+    # To enable:
+    # _setReg(ADC_CTRL, TSC_ADC_SS_ENABLE)
+    #  This will turn STEPCONFIG write protect back on 
+    # To keep write protect off:
+    # _orReg(ADC_CTRL, TSC_ADC_SS_ENABLE)
+    #----------------
+
+    ADC_CLKDIV = ADC_TSC + 0x4c  # Write desired value-1
+
+    #--- ADC_STEPENABLE ---
+    ADC_STEPENABLE = ADC_TSC + 0x54
+
+    #----------------------
+
+    ADC_IDLECONFIG = ADC_TSC + 0x58
+
+    #--- ADC STEPCONFIG ---
+    ADCSTEPCONFIG = ADC_TSC + 0x64
+    ADCSTEPDELAY  = ADC_TSC + 0x68
+
+    ADC_RESET = 0x00 # Default value of STEPCONFIG
+
+    ADC_AVG2  = 0x01 << 2
+    ADC_AVG4  = 0x02 << 2
+    ADC_AVG8  = 0x03 << 2
+    ADC_AVG16 = 0x04 << 2
+
+    SAMPLE_DELAY = lambda cycles: (cycles&0xff)<<24
+    # SAMPLE_DELAY is the number of cycles to sample for
+    # Set delay with _orReg(ADCSTEPDELAYx, SAMPLE_DELAY(cycles))
+
+    #----------------------
+
+    #--- ADC FIFO ---
+    ADC_FIFO0DATA = ADC_TSC + 0x100
+
+    ADC_FIFO_MASK = 0xfff
+    # ADC result = _getReg(ADC_FIFO0DATA)&ADC_FIFO_MASK
+    #----------------
+    
+    MODULEMODE_ENABLE = _MODULEMODE_ENABLE
+
+    def __init__(self, registers, bit_num):
         self._cleanup = True
-        super(BeagleboneAnalogInput, self).__init__(*args, **kwargs)
+        super(BeagleboneAnalogInput, self).__init__(
+            registers, self.ADC_STEPENABLE, self.ADC_FIFO0DATA, self.ADC_FIFO_MASK)
 
     def __del__(self):
         if self._cleanup:
             # Disable ADC subsystem:
-            self.registers[_ADC_CTRL] &= ~_TSC_ADC_SS_ENABLE
+            self.registers[self.ADC_CTRL] &= ~self.TSC_ADC_SS_ENABLE
             # Disable ADC module clock:
-            self.registers[_CM_WKUP_ADC_TSC_CLKCTRL] &= ~_MODULEMODE_ENABLE
+            self.registers[self.CM_WKUP_ADC_TSC_CLKCTRL] &= ~self.MODULEMODE_ENABLE
     
     def _ADCInit(self):
         """ Initializes the on-board 8ch 12bit ADC. """
         # Enable ADC module clock:
-        self.registers[_CM_WKUP_ADC_TSC_CLKCTRL] = _MODULEMODE_ENABLE
+        self.registers[self.CM_WKUP_ADC_TSC_CLKCTRL] = self.MODULEMODE_ENABLE
         # Wait for enable complete:
-        while(self.registers[_CM_WKUP_ADC_TSC_CLKCTRL] & _IDLEST_MASK): pass
+        while(self.registers[self.CM_WKUP_ADC_TSC_CLKCTRL] & _IDLEST_MASK): pass
         # Must turn off STEPCONFIG write protect:
-        self.registers[_ADC_CTRL] = 1 << 2
+        self.registers[self.ADC_CTRL] = 1 << 2
         # Set STEPCONFIG1-STEPCONFIG8 to correspond to ADC inputs 0-7:
         for i in range(8):
-            config = (self.bit_num << 19) | _ADC_AVG4
-            self.registers[_ADCSTEPCONFIG + 8 * self.bit_num] &= config
+            config = (self.bit_num << 19) | self.ADC_AVG4
+            self.registers[self.ADCSTEPCONFIG + 8 * self.bit_num] &= config
         # Now we can enable ADC subsystem, re-enabling write protect:
-        self.registers[_ADC_CTRL] = _TSC_ADC_SS_ENABLE
+        self.registers[self.ADC_CTRL] = self.TSC_ADC_SS_ENABLE
         self._cleanup = True
     
     def _ADCEnabled(self):
-        return bool(self.registers[_CM_WKUP_ADC_TSC_CLKCTRL] & _IDLEST_MASK)
+        return bool(self.registers[self.CM_WKUP_ADC_TSC_CLKCTRL] & _IDLEST_MASK)
 
 ## ADC pins:
 
-AIN0 = BeagleboneAnalogInput(registers, _ADC_STEPENABLE,
-                             _ADC_FIFO0DATA, _ADC_FIFO_MASK, 1)
-AIN1 = BeagleboneAnalogInput(registers, _ADC_STEPENABLE,
-                             _ADC_FIFO0DATA, _ADC_FIFO_MASK, 2)
-AIN2 = BeagleboneAnalogInput(registers, _ADC_STEPENABLE,
-                             _ADC_FIFO0DATA, _ADC_FIFO_MASK, 3)
-AIN3 = BeagleboneAnalogInput(registers, _ADC_STEPENABLE,
-                             _ADC_FIFO0DATA, _ADC_FIFO_MASK, 4)
-AIN4 = BeagleboneAnalogInput(registers, _ADC_STEPENABLE,
-                             _ADC_FIFO0DATA, _ADC_FIFO_MASK, 5)
-AIN5 = BeagleboneAnalogInput(registers, _ADC_STEPENABLE,
-                             _ADC_FIFO0DATA, _ADC_FIFO_MASK, 6)
-AIN6 = BeagleboneAnalogInput(registers, _ADC_STEPENABLE,
-                             _ADC_FIFO0DATA, _ADC_FIFO_MASK, 7)
-AIN7 = BeagleboneAnalogInput(registers, _ADC_STEPENABLE,
-                             _ADC_FIFO0DATA, _ADC_FIFO_MASK, 8)
+AIN0 = BeagleboneAnalogInput(registers, 1)
+AIN1 = BeagleboneAnalogInput(registers, 2)
+AIN2 = BeagleboneAnalogInput(registers, 3)
+AIN3 = BeagleboneAnalogInput(registers, 4)
+AIN4 = BeagleboneAnalogInput(registers, 5)
+AIN5 = BeagleboneAnalogInput(registers, 6)
+AIN6 = BeagleboneAnalogInput(registers, 7)
+AIN7 = BeagleboneAnalogInput(registers, 8)
 
 ##--- End ADC config -------##
 ##############################

@@ -104,7 +104,7 @@ class GPIO(object):
         """The current state of the pin if configured as an output."""
         if self.registers[self.dir_reg] & (1 << self.bit_num):
             return None
-        return (self.registers[self.dir_reg] >> self.bit_num) & 0x1
+        return (self.registers[self.out_reg] >> self.bit_num) & 0x1
 
     def set(self):
         """Sets the pin output to high."""
