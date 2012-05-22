@@ -12,7 +12,7 @@
 from boneio import *
 
 # Analog input pin - A0 is pin 39 on header P9 
-ain = A0
+ain = AIN0
 
 def main():
   init()

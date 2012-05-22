@@ -206,7 +206,7 @@ class BeagleboneAnalogInput(boneio.AnalogInput):
         # Wait for enable complete:
         while(self.registers[self.CM_WKUP_ADC_TSC_CLKCTRL] & _IDLEST_MASK): pass
         # Must turn off STEPCONFIG write protect:
-        self.registers[self.ADC_CTRL] = 1 << 2
+        self.registers[self.ADC_CTRL] &= 1 << 2
         # Set STEPCONFIG1-STEPCONFIG8 to correspond to ADC inputs 0-7:
         for i in range(8):
             config = (self.bit_num << 19) | self.ADC_AVG4
@@ -216,7 +216,7 @@ class BeagleboneAnalogInput(boneio.AnalogInput):
         self._cleanup = True
     
     def _ADCEnabled(self):
-        return bool(self.registers[self.CM_WKUP_ADC_TSC_CLKCTRL] & _IDLEST_MASK)
+        return not (self.registers[self.CM_WKUP_ADC_TSC_CLKCTRL] & _IDLEST_MASK)
 
 ## ADC pins:
 
