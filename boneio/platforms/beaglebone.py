@@ -191,7 +191,7 @@ class BeagleboneAnalogInput(boneio.AnalogInput):
     def __del__(self):
         self.close()
     
-    def close():
+    def close(self):
         if self._cleanup:
             # Disable ADC subsystem:
             self.registers[self.ADC_CTRL] &= ~self.TSC_ADC_SS_ENABLE
