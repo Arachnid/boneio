@@ -31,7 +31,7 @@ THRESHOLD = 245   # analogRead() value > THRESHOLD indicates knock
 def main():
   init()
 
-  pinMode(LED, OUTPUT)  
+  LED.output()
   print "PyBBIO Knock Sensor"
 
   try:
@@ -39,7 +39,7 @@ def main():
       value = analogRead(KNOCK_SENSOR)
       #print value
       if (value > THRESHOLD):
-        toggle(LED)
+        LED.toggle()
         print "knock!"
       delay(100)
   finally:

@@ -10,13 +10,13 @@ def main():
   init()
 
   # Set the GPIO pins:
-  pinMode(USR3, OUTPUT)
-  pinMode(GPIO1_6, INPUT)
+  USR3.output()
+  GPIO1_6.input()
 
   try:
     while True:
-      state = digitalRead(GPIO1_6)
-      digitalWrite(USR3, state)
+      state = GPIO1_6.value
+      USR3.value = state
       # It's good to put a bit of a delay in if possible
       # to keep the processor happy:
       delay(100)

@@ -22,10 +22,10 @@ def main():
   init()
   
   # Set the switch as input:
-  pinMode(SWITCH, INPUT)
+  SWITCH.input()
   # Set the LEDs as outputs:
-  pinMode(LED_GRN, OUTPUT)
-  pinMode(LED_RED, OUTPUT)
+  LED_GRN.output()
+  LED_RED.output()
 
   LED_STATE = 0 # 0=green LED lit, 1=red LED lit.
   SW_STATE  = 0 # =1 when switch pressed; only change LED_STATE
@@ -33,11 +33,11 @@ def main():
 
   try:
     while True:
-      if digitalRead(SWITCH):
+      if SWITCH.value:
         if SW_STATE == 0:
           # Just pressed, not held down.
           # Set SW_STATE and toggle LED_STATE
-          SW_STATE = 1 
+          SW_STATE = 1
           LED_STATE ^= 1
         # Otherwise switch is held down, don't do anything.
       else:
@@ -45,11 +45,11 @@ def main():
         SW_STATE = 0
 
       if LED_STATE == 0:
-        digitalWrite(LED_GRN, True)
-        digitalWrite(LED_RED, False)
+        LED_GRN.set()
+        LED_RED.clear()
       else:
-        digitalWrite(LED_GRN, False)
-        digitalWrite(LED_RED, True)
+        LED_GRN.clear()
+        LED_RED.set()
       # It's good to put a bit of a delay in if possible
       # to keep the processor happy:
       delay(50)

@@ -6,14 +6,15 @@
 # This example is in the public domain
 
 # Import boneio library:
-from boneio import *
+import boneio
 
 def main():
   init()
 
-  print "\n GPIO pins:" 
-  for i in GPIO.keys(): 
-    print "   %s" % i
+  print "\n GPIO pins:"
+  for k in dir(boneio):
+      if isinstance(getattr(boneio, k), boneio.GPIO):
+          print "   %s" % k
   print "\n ADC pins:" 
   for i in ADC.keys():
     print "   %s" % i
