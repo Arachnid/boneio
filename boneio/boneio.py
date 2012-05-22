@@ -25,9 +25,9 @@ class RegisterMap(object):
     def __setitem__(self, address, val):
         """ Sets 16 or 32 bits at given address to given value. """
         if (self.register_size == 32):
-          __mmap[address:address+4] = struct.pack("<L", val)
+          self.mem[address:address+4] = struct.pack("<L", val)
         elif (self.register_size == 16):
-          __mmap[address:address+2] = struct.pack("<H", val)
+          self.mem[address:address+2] = struct.pack("<H", val)
 
     def close(self):
         self.mem.close()
