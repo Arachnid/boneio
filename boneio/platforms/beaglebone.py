@@ -184,12 +184,14 @@ class BeagleboneAnalogInput(boneio.AnalogInput):
     MODULEMODE_ENABLE = _MODULEMODE_ENABLE
 
     def __init__(self, registers, bit_num):
-        self._cleanup = True
         super(BeagleboneAnalogInput, self).__init__(
             registers, self.ADC_STEPENABLE, self.ADC_FIFO0DATA,
             self.ADC_FIFO_MASK, bit_num)
 
     def __del__(self):
+        self.close()
+    
+    def close():
         if self._cleanup:
             # Disable ADC subsystem:
             self.registers[self.ADC_CTRL] &= ~self.TSC_ADC_SS_ENABLE
@@ -198,6 +200,7 @@ class BeagleboneAnalogInput(boneio.AnalogInput):
     
     def _ADCInit(self):
         """ Initializes the on-board 8ch 12bit ADC. """
+        self._cleanup = True
         # Enable ADC module clock:
         self.registers[self.CM_WKUP_ADC_TSC_CLKCTRL] = self.MODULEMODE_ENABLE
         # Wait for enable complete:
